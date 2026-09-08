@@ -1,0 +1,43 @@
+@import '@fontsource-variable/inter';
+@import './styles/tokens.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    /* Figma memakai skala 13px sebagai teks isi. Root tetap 16px supaya
+       rem bawaan browser tidak dirusak; ukuran diatur lewat kelas. */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-bg text-ink font-sans text-base;
+    margin: 0;
+  }
+
+  /* Angka pada tabel dan nomor surat harus sejajar */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Fokus yang terlihat, tanpa cincin biru bawaan browser */
+  :where(a, button, input, select, textarea, [tabindex]):focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  ::placeholder {
+    color: var(--text-subtle);
+  }
+}
+
+@layer components {
+  /* Pembungkus konten: mengalir mengikuti lebar layar, tetapi tidak melar
+     tanpa batas di monitor lebar. */
+  .konten {
+    @apply mx-auto w-full max-w-konten px-8 py-8;
+  }
+}

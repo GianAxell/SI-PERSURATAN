@@ -1,0 +1,53 @@
+/*
+ * Design token — diambil langsung dari Figma
+ * "UI UX - Sistem Informasi Persuratan" (myq42M5NPjRWgh4zQyxrQa)
+ *
+ * Jangan menambah warna baru di sini tanpa padanannya di Figma.
+ * Kalau sebuah layar butuh warna yang belum ada, itu tanda desainnya
+ * yang perlu diperiksa, bukan tokennya yang ditambah diam-diam.
+ */
+
+:root {
+  /* ---- permukaan ---- */
+  --bg: #f7f5f3; /* latar halaman */
+  --surface: #ffffff; /* kartu, tabel, modal */
+  --surface-muted: #f2eeea; /* header tabel, badge netral, hover baris */
+  --border: #e0d9d3;
+
+  /* ---- teks ---- */
+  --text: #241b16; /* judul dan isi utama */
+  --text-muted: #6e625b; /* label, teks sekunder */
+  --text-subtle: #9c9189; /* keterangan kecil, placeholder */
+
+  /* ---- navigasi gelap ---- */
+  --nav: #33241e; /* sidebar dan tombol utama */
+  --nav-active: #4a362c; /* item sidebar yang sedang aktif */
+  --nav-text: #ccc1b9; /* item sidebar tidak aktif */
+  --nav-subtle: #a3968d; /* nama perusahaan di kepala sidebar */
+  --nav-text-on: #ffffff; /* item sidebar aktif */
+
+  /* ---- aksen ---- */
+  --accent: #e5760a; /* penanda menu aktif, halaman aktif */
+
+  /* ---- status ---- */
+  --st-abu-bg: #f2eeea;
+  --st-abu-br: #e0d9d3;
+  --st-abu-fg: #6e625b;
+
+  --st-amber-bg: #fdf0e0;
+  --st-amber-br: #f3cb9b;
+  --st-amber-fg: #93570a;
+
+  --st-hijau-bg: #e9f3ec;
+  --st-hijau-br: #bfdcc9;
+  --st-hijau-fg: #2a6b45;
+
+  --st-merah-bg: #fbeae6;
+  --st-merah-br: #f0c6bc;
+  --st-merah-fg: #9e3b27;
+
+  /* ---- ukuran tetap ---- */
+  --sidebar-w: 240px;
+  --sidebar-mini-w: 72px;
+  --topbar-h: 64px;
+}
