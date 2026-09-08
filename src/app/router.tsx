@@ -2,7 +2,6 @@ import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { AppLayout } from './layouts/AppLayout';
 import { ProtectedRoute } from './ProtectedRoute';
 import { LoginPage } from '@/features/auth/LoginPage';
-import { Placeholder } from '@/components/Placeholder';
 import { SuratMasukListPage } from '@/features/surat-masuk/SuratMasukListPage';
 import { SuratMasukBaruPage } from '@/features/surat-masuk/SuratMasukBaruPage';
 import { SuratMasukDetailPage } from '@/features/surat-masuk/SuratMasukDetailPage';
@@ -10,6 +9,18 @@ import { DisposisiSayaPage } from '@/features/disposisi/DisposisiSayaPage';
 import { DisposisiDetailPage } from '@/features/disposisi/DisposisiDetailPage';
 import { RiwayatSayaPage } from '@/features/disposisi/RiwayatSayaPage';
 import { RiwayatAdminPage } from '@/features/disposisi/RiwayatAdminPage';
+import { SuratKeluarListPage } from '@/features/surat-keluar/SuratKeluarListPage';
+import { SuratKeluarBaruPage } from '@/features/surat-keluar/SuratKeluarBaruPage';
+import { SuratKeluarDetailPage } from '@/features/surat-keluar/SuratKeluarDetailPage';
+import { MasterLayout } from '@/features/master/MasterLayout';
+import { PenggunaPage } from '@/features/master/PenggunaPage';
+import { PegawaiPage } from '@/features/master/PegawaiPage';
+import { BagianPage } from '@/features/master/BagianPage';
+import { JenisSuratPage } from '@/features/master/JenisSuratPage';
+import { TemplatePage } from '@/features/master/TemplatePage';
+import { PenomoranPage } from '@/features/master/PenomoranPage';
+import { ProfilPage } from '@/features/auth/ProfilPage';
+import { UbahKataSandiPage } from '@/features/auth/UbahKataSandiPage';
 import { BerandaRedirect } from './BerandaRedirect';
 
 /*
@@ -61,46 +72,47 @@ export const router = createBrowserRouter([
       {
         path: 'surat-keluar',
         handle: { judul: 'Surat Keluar' },
-        element: admin(<Placeholder layar="07" nama="Daftar Surat Keluar" />),
+        element: admin(<SuratKeluarListPage />),
       },
       {
         path: 'surat-keluar/baru',
         handle: { judul: 'Buat Surat Keluar' },
-        element: admin(<Placeholder layar="08–10" nama="Buat Surat Keluar" />),
+        element: admin(<SuratKeluarBaruPage />),
       },
       {
         path: 'surat-keluar/:id',
         handle: { judul: 'Detail Surat Keluar' },
-        element: admin(<Placeholder layar="11" nama="Detail Surat Keluar" />),
+        element: admin(<SuratKeluarDetailPage />),
       },
       {
         path: 'master',
         handle: { judul: 'Data Master' },
+        element: <MasterLayout />,
         children: [
           { index: true, element: <Navigate to="/master/pengguna" replace /> },
           {
             path: 'pengguna',
-            element: admin(<Placeholder layar="13" nama="Data Master Pengguna" />),
+            element: admin(<PenggunaPage />),
           },
           {
             path: 'pegawai',
-            element: admin(<Placeholder layar="21" nama="Data Master Pegawai" />),
+            element: admin(<PegawaiPage />),
           },
           {
             path: 'bagian',
-            element: admin(<Placeholder layar="22" nama="Data Master Bagian" />),
+            element: admin(<BagianPage />),
           },
           {
             path: 'jenis-surat',
-            element: admin(<Placeholder layar="14" nama="Data Master Jenis Surat" />),
+            element: admin(<JenisSuratPage />),
           },
           {
             path: 'template',
-            element: admin(<Placeholder layar="15" nama="Data Master Template" />),
+            element: admin(<TemplatePage />),
           },
           {
             path: 'penomoran',
-            element: admin(<Placeholder layar="16" nama="Aturan Penomoran" />),
+            element: admin(<PenomoranPage />),
           },
         ],
       },
@@ -126,12 +138,12 @@ export const router = createBrowserRouter([
       {
         path: 'profil',
         handle: { judul: 'Profil Saya' },
-        element: <Placeholder layar="29" nama="Profil Saya" />,
+        element: <ProfilPage />,
       },
       {
         path: 'ubah-kata-sandi',
         handle: { judul: 'Ubah Kata Sandi' },
-        element: <Placeholder layar="30" nama="Ubah Kata Sandi" />,
+        element: <UbahKataSandiPage />,
       },
     ],
   },

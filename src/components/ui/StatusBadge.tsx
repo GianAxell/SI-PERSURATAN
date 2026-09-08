@@ -18,7 +18,10 @@ export function StatusBadge({
 }) {
   const s = labelStatusDisposisi(status);
   return (
-    <span className="inline-flex items-center gap-1.5">
+    /* Dua badge bisa turun ke baris kedua di layar sempit. Kalau dipaksa
+       satu baris, yang terpotong justru "Terlambat" — penanda yang paling
+       perlu terlihat. Tinggi baris tabel ikut menyesuaikan. */
+    <span className="inline-flex flex-wrap items-center gap-1.5">
       <Badge nada={s.nada} lebarTetap={lebarTetap}>
         {s.label}
       </Badge>

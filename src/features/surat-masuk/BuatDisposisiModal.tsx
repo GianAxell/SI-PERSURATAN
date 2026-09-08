@@ -6,10 +6,13 @@ import { Field } from '@/components/ui/Field';
 import { Input, Textarea } from '@/components/ui/Input';
 import { DateInput } from '@/components/ui/DateInput';
 import { Modal } from '@/components/ui/Modal';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { useToast } from '@/components/ui/Toast';
 import { cn } from '@/lib/cn';
 import { pesanError } from '@/lib/api';
-import type { SuratMasukDetail } from '@/types';
+import { tanggalPanjang } from '@/lib/format';
+import type { PegawaiRef, SuratMasukDetail } from '@/types';
 import { useBuatDisposisi, usePegawaiPenerima } from './api';
 
 /**
@@ -29,8 +32,13 @@ export function BuatDisposisiModal({
   surat: SuratMasukDetail;
 }) {
   const queryClient = useQueryClient();
+  const toast = useToast();
   const [cari, setCari] = useState('');
-  const [pegawaiId, setPegawaiId] = useState<number | null>(null);
+  const [konfirmasi, setKonfirmasi] = useState(false);
+  /* Yang disimpan objeknya, bukan id-nya saja: daftar pegawai menyusut saat
+     kotak pencarian diketik, dan yang sudah terpilih bisa keluar dari daftar
+     sehingga namanya tidak lagi bisa dicari balik untuk dialog konfirmasi. */
+  const [penerima, setPenerima] = useState<PegawaiRef | null>(null);
   const [instruksi, setInstruksi] = useState('');
   const [batasWaktu, setBatasWaktu] = useState('');
   const [galat, setGalat] = useState<string | null>(null);
@@ -41,29 +49,43 @@ export function BuatDisposisiModal({
   useEffect(() => {
     if (terbuka) return;
     setCari('');
-    setPegawaiId(null);
+    setPenerima(null);
     setInstruksi('');
     setBatasWaktu('');
     setGalat(null);
+    setKonfirmasi(false);
   }, [terbuka]);
 
-  const simpan = async () => {
+  /* Disposisi yang terkirim langsung muncul di layar pegawai dan tidak bisa
+     ditarik kembali (O-3: pembatalan tidak ada di v1), jadi dikonfirmasi. */
+  const periksa = () => {
     setGalat(null);
-    if (!pegawaiId) return setGalat('Pilih pegawai penerima terlebih dahulu');
+    if (!penerima) return setGalat('Pilih pegawai penerima terlebih dahulu');
     if (!instruksi.trim()) return setGalat('Instruksi wajib diisi');
+    setKonfirmasi(true);
+  };
 
+  const simpan = async () => {
+    if (!penerima) return;
     try {
       await buat.mutateAsync({
-        pegawai_id: pegawaiId,
+        pegawai_id: penerima.id,
         instruksi: instruksi.trim(),
         batas_waktu: batasWaktu || null,
       });
       await queryClient.invalidateQueries({
         queryKey: ['surat-masuk', 'detail', String(surat.id)],
       });
+      setKonfirmasi(false);
+      toast.sukses(
+        'Disposisi berhasil dikirim',
+        `${penerima.nama} akan menerima pemberitahuan surat ${surat.nomor_agenda}.`,
+      );
       onTutup();
     } catch (e) {
+      setKonfirmasi(false);
       setGalat(pesanError(e));
+      toast.galat('Disposisi gagal dikirim', pesanError(e));
     }
   };
 
@@ -76,8 +98,8 @@ export function BuatDisposisiModal({
       footer={
         <>
           <Button onClick={onTutup}>Batal</Button>
-          <Button ragam="utama" onClick={simpan} disabled={buat.isPending}>
-            {buat.isPending ? 'Menyimpan…' : 'Simpan'}
+          <Button ragam="utama" onClick={periksa} disabled={buat.isPending}>
+            Kirim Disposisi
           </Button>
         </>
       }
@@ -109,17 +131,17 @@ export function BuatDisposisiModal({
                 <button
                   key={p.id}
                   type="button"
-                  onClick={() => setPegawaiId(p.id)}
+                  onClick={() => setPenerima(p)}
                   className={cn(
                     'flex w-full items-center justify-between gap-3 border-b border-line px-4 py-2.5',
                     'text-left text-base last:border-b-0 transition-colors',
-                    p.id === pegawaiId
+                    p.id === penerima?.id
                       ? 'bg-surface-muted font-medium text-ink'
                       : 'text-ink hover:bg-surface-muted',
                   )}
                 >
                   <span className="truncate">{p.nama}</span>
-                  {p.id === pegawaiId ? (
+                  {p.id === penerima?.id ? (
                     <span className="shrink-0 text-label text-accent">Dipilih</span>
                   ) : null}
                 </button>
@@ -168,6 +190,32 @@ export function BuatDisposisiModal({
           </p>
         ) : null}
       </div>
+
+      <ConfirmDialog
+        terbuka={konfirmasi}
+        onTutup={() => setKonfirmasi(false)}
+        onSetuju={simpan}
+        sedangProses={buat.isPending}
+        judul="Kirim disposisi ini?"
+        labelSetuju="Ya, Kirim Disposisi"
+        labelBatal="Periksa Lagi"
+        keterangan={
+          <>
+            Pegawai yang dituju akan langsung melihat disposisi ini beserta
+            pemberitahuannya. Disposisi yang sudah dikirim tidak dapat ditarik kembali.
+          </>
+        }
+        rincian={[
+          { label: 'Surat', nilai: `${surat.nomor_agenda} — ${surat.perihal}`, tabular: false },
+          { label: 'Penerima', nilai: penerima?.nama },
+          {
+            label: 'Batas waktu',
+            nilai: batasWaktu ? tanggalPanjang(batasWaktu) : 'Tanpa batas waktu',
+            tabular: Boolean(batasWaktu),
+          },
+          { label: 'Instruksi', nilai: instruksi.trim() },
+        ]}
+      />
     </Modal>
   );
 }

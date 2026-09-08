@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
+import { useToast } from '@/components/ui/Toast';
 import { pesanError } from '@/lib/api';
 import { PilihSuratKeluar } from './PilihSuratKeluar';
 import { useTautkanBalasan } from './api';
@@ -22,6 +23,7 @@ export function TandaiBalasanModal({
   const [pilihan, setPilihan] = useState<number | null>(null);
   const [galat, setGalat] = useState<string | null>(null);
   const tautkan = useTautkanBalasan(suratId);
+  const toast = useToast();
 
   useEffect(() => {
     if (terbuka) return;
@@ -37,10 +39,12 @@ export function TandaiBalasanModal({
       await queryClient.invalidateQueries({
         queryKey: ['surat-masuk', 'detail', String(suratId)],
       });
+      toast.sukses('Surat balasan berhasil ditautkan');
       onTutup();
     } catch (e) {
       /* 409 berarti surat keluar itu sudah menjadi balasan surat lain (B-9). */
       setGalat(pesanError(e));
+      toast.galat('Surat balasan gagal ditautkan', pesanError(e));
     }
   };
 

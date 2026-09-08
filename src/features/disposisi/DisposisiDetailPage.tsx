@@ -11,6 +11,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Textarea } from '@/components/ui/Input';
 import { Timeline } from '@/components/ui/Timeline';
+import { useToast } from '@/components/ui/Toast';
 import { pesanError } from '@/lib/api';
 import { tanggalPanjang } from '@/lib/format';
 import { STATUS_DISPOSISI } from '@/lib/status';
@@ -176,6 +177,7 @@ function FormulirTindakLanjut({
   const [galat, setGalat] = useState<string | null>(null);
   const [tersimpan, setTersimpan] = useState(false);
   const ubah = useUbahStatusDisposisi(id);
+  const toast = useToast();
 
   useEffect(() => setHasil(hasilAwal), [hasilAwal]);
 
@@ -205,8 +207,12 @@ function FormulirTindakLanjut({
       });
       setTersimpan(true);
       setTimeout(() => setTersimpan(false), 2500);
+      toast.sukses(
+        statusBaru === 'selesai' ? 'Disposisi ditandai selesai' : 'Status disposisi diperbarui',
+      );
     } catch (e) {
       setGalat(pesanError(e));
+      toast.galat('Status disposisi gagal diubah', pesanError(e));
     }
   };
 

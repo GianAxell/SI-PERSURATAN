@@ -107,7 +107,9 @@ export function SuratMasukListPage() {
       {
         accessorKey: 'pic',
         header: 'PIC',
-        meta: { lebar: '12%' },
+        /* Status yang harus selalu terlihat (§7.4 Analisis Teknis); PIC
+           mengalah lebih dulu saat layar menyempit. */
+        meta: { lebar: '12%', sembunyiSempit: true },
         cell: (c) => (
           <span className="text-ink-muted">{(c.getValue() as string) || '—'}</span>
         ),

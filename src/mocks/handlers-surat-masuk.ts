@@ -1,25 +1,23 @@
 import { http, HttpResponse } from 'msw';
 import { SURAT_MASUK, keRingkas, nomorAgendaBerikutnya, pdfContoh } from './surat-masuk';
+import { PEGAWAI } from './master';
+import { SURAT_KELUAR } from './surat-keluar';
 import { gagal, halaman, jeda, penggunaDari, sukses } from './util';
 import type { CatatanSurat } from './surat-masuk';
 import type { StatusDisposisi } from '@/types';
 
-const PEGAWAI_PENERIMA = [
-  { id: 12, nama: 'Budi Santoso — FIN Keuangan' },
-  { id: 13, nama: 'Sari Wulandari — ADM Administrasi' },
-  { id: 14, nama: 'Agus Prasetyo — HR Personalia' },
-  { id: 15, nama: 'Dewi Lestari — MKT Pengembangan' },
-  { id: 16, nama: 'Rizky Ramadhan — ENG Engineer' },
-];
-
-/** Surat keluar yang belum menjadi balasan surat masuk mana pun (K-12). */
-const SURAT_KELUAR_TERSEDIA = Array.from({ length: 12 }, (_, i) => ({
-  id: 468 - i,
-  nomor_surat: `${468 - i}/FIN.03/Digitak/VIII/2026`,
-  tanggal_surat: '2026-08-02',
-  perihal: 'Invoice Termin III Portal Hubud',
-  kepada: 'PT Fiber Media Indonesia',
-}));
+/**
+ * Penerima disposisi diambil dari master pegawai: hanya yang berstatus aktif
+ * dan punya akun pengguna (B-11). Pegawai tanpa akun tidak bisa membuka
+ * disposisi, jadi tidak ditawarkan.
+ */
+function penerimaDisposisi() {
+  return PEGAWAI.filter((p) => p.status === 'aktif' && p.user).map((p) => ({
+    id: p.id,
+    nama: p.nama,
+    keterangan: p.bagian ? `${p.bagian.kode} ${p.bagian.nama}` : '',
+  }));
+}
 
 /**
  * Ringkasan status surat dihitung, bukan disimpan (§3.3 kontrak):
@@ -160,7 +158,7 @@ export const handlersSuratMasuk = [
       batas_waktu: string | null;
     };
 
-    const penerima = PEGAWAI_PENERIMA.find((p) => p.id === body.pegawai_id);
+    const penerima = penerimaDisposisi().find((p) => p.id === body.pegawai_id);
     if (!penerima) {
       return gagal(400, 'Validasi gagal', [
         { field: 'pegawai_id', message: 'Pegawai penerima tidak dikenali' },
@@ -169,7 +167,7 @@ export const handlersSuratMasuk = [
 
     const baru = {
       id: Date.now(),
-      penerima: { id: penerima.id, nama: penerima.nama.split(' — ')[0] },
+      penerima: { id: penerima.id, nama: penerima.nama },
       pemberi: { id: user.id, nama: user.nama },
       instruksi: body.instruksi,
       batas_waktu: body.batas_waktu,
@@ -193,7 +191,7 @@ export const handlersSuratMasuk = [
     if (!surat) return gagal(404, 'Surat masuk tidak ditemukan');
 
     const { surat_keluar_id } = (await request.json()) as { surat_keluar_id: number };
-    const keluar = SURAT_KELUAR_TERSEDIA.find((s) => s.id === surat_keluar_id);
+    const keluar = SURAT_KELUAR.find((s) => s.id === surat_keluar_id);
     if (!keluar) return gagal(404, 'Surat keluar tidak ditemukan');
 
     /* Satu surat keluar hanya boleh menjadi balasan satu surat masuk (B-9). */
@@ -214,23 +212,7 @@ export const handlersSuratMasuk = [
   http.get('/api/pegawai/penerima-disposisi', ({ request }) => {
     if (!penggunaDari(request)) return gagal(401, 'Sesi tidak valid');
     const q = (new URL(request.url).searchParams.get('q') ?? '').toLowerCase();
-    return sukses(
-      PEGAWAI_PENERIMA.filter((p) => p.nama.toLowerCase().includes(q)),
-    );
+    return sukses(penerimaDisposisi().filter((p) => p.nama.toLowerCase().includes(q)));
   }),
 
-  http.get('/api/surat-keluar/tersedia', ({ request }) => {
-    if (!penggunaDari(request)) return gagal(401, 'Sesi tidak valid');
-    const q = (new URL(request.url).searchParams.get('q') ?? '').toLowerCase();
-    const dipakai = new Set(
-      SURAT_MASUK.map((s) => s.surat_balasan?.id).filter(Boolean) as number[],
-    );
-    return sukses(
-      SURAT_KELUAR_TERSEDIA.filter(
-        (s) =>
-          !dipakai.has(s.id) &&
-          `${s.nomor_surat} ${s.perihal} ${s.kepada}`.toLowerCase().includes(q),
-      ),
-    );
-  }),
 ];

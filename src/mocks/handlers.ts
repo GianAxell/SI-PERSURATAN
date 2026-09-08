@@ -1,8 +1,11 @@
 import { http } from 'msw';
-import { NOTIFIKASI_ADMIN, NOTIFIKASI_PEGAWAI, PENGGUNA } from './data';
+import { NOTIFIKASI_ADMIN, NOTIFIKASI_PEGAWAI } from './data';
+import { USERS } from './master';
 import { buatToken, gagal, penggunaDari, sukses } from './util';
 import { handlersSuratMasuk } from './handlers-surat-masuk';
 import { handlersDisposisi } from './handlers-disposisi';
+import { handlersSuratKeluar } from './handlers-surat-keluar';
+import { handlersMaster } from './handlers-master';
 
 /*
  * Handler MSW mengikuti amplop response, kode status, dan bentuk galat pada
@@ -17,9 +20,13 @@ const handlersAuth = [
       password: string;
     };
 
-    const cocok = PENGGUNA.find((u) => u.username === username && u.password === password);
+    const cocok = USERS.find((u) => u.username === username && u.password === password);
     if (!cocok) return gagal(401, 'Nama pengguna atau kata sandi tidak sesuai');
     if (cocok.status === 'nonaktif') return gagal(403, 'Akun ini sudah dinonaktifkan');
+
+    /* Waktu masuk dicatat di sini, bukan di frontend — layar 29 menampilkannya
+       apa adanya dari server, dan jam laptop yang meleset tidak ikut campur. */
+    cocok.terakhir_masuk = new Date().toISOString();
 
     const { password: _abaikan, ...user } = cocok;
     return sukses({ token: buatToken(user), user }, undefined, 'Berhasil masuk');
@@ -37,7 +44,7 @@ const handlersAuth = [
     if (!user) return gagal(401, 'Sesi tidak valid');
 
     const { password_lama, password_baru } = (await request.json()) as Record<string, string>;
-    const asli = PENGGUNA.find((u) => u.id === user.id);
+    const asli = USERS.find((u) => u.id === user.id);
 
     if (asli?.password !== password_lama) {
       return gagal(400, 'Validasi gagal', [
@@ -83,5 +90,7 @@ export const handlers = [
   ...handlersAuth,
   ...handlersNotifikasi,
   ...handlersSuratMasuk,
+  ...handlersSuratKeluar,
   ...handlersDisposisi,
+  ...handlersMaster,
 ];

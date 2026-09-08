@@ -1,5 +1,5 @@
 import { HttpResponse } from 'msw';
-import { PENGGUNA } from './data';
+import { USERS } from './master';
 import type { ApiFieldError, User } from '@/types';
 
 /** Amplop response mengikuti §2.2 kontrak. */
@@ -16,11 +16,17 @@ export function penggunaDari(request: Request): User | null {
   const header = request.headers.get('Authorization');
   if (!header?.startsWith('Bearer mock.')) return null;
   const id = Number(header.replace('Bearer mock.', ''));
-  const ditemukan = PENGGUNA.find((u) => u.id === id);
+  const ditemukan = USERS.find((u) => u.id === id);
   if (!ditemukan) return null;
   const { password: _abaikan, ...tanpaPassword } = ditemukan;
   return tanpaPassword;
 }
+
+const ROMAWI = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'];
+
+/** Bulan romawi diambil dari tanggal surat, bukan tanggal sistem (K-6). */
+export const bulanRomawiDari = (tanggal: string) =>
+  ROMAWI[Number(tanggal.slice(5, 7)) - 1] ?? 'I';
 
 /** Menunda jawaban agar keadaan "memuat" di UI benar-benar terlihat. */
 export const jeda = (ms = 220) => new Promise((r) => setTimeout(r, ms));

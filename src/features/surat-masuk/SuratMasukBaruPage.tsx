@@ -9,7 +9,10 @@ import { Field } from '@/components/ui/Field';
 import { FileUpload } from '@/components/ui/FileUpload';
 import { Input, Textarea } from '@/components/ui/Input';
 import { DateInput } from '@/components/ui/DateInput';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { useToast } from '@/components/ui/Toast';
 import { errorField, pesanError } from '@/lib/api';
+import { tanggalPanjang, ukuranBerkas } from '@/lib/format';
 import { PilihSuratKeluar } from './PilihSuratKeluar';
 import { useBuatSuratMasuk } from './api';
 
@@ -27,7 +30,9 @@ type Isian = z.infer<typeof skema>;
 /** Layar 03 Registrasi Surat Masuk (UC-02). */
 export function SuratMasukBaruPage() {
   const navigate = useNavigate();
+  const toast = useToast();
   const [berkas, setBerkas] = useState<File | null>(null);
+  const [konfirmasi, setKonfirmasi] = useState<Isian | null>(null);
   const [galatBerkas, setGalatBerkas] = useState<string | undefined>();
   const [progress, setProgress] = useState<number | null>(null);
   const [galatUmum, setGalatUmum] = useState<string | null>(null);
@@ -42,7 +47,13 @@ export function SuratMasukBaruPage() {
     formState: { errors, isSubmitting },
   } = useForm<Isian>({ resolver: zodResolver(skema) });
 
-  const kirim = handleSubmit(async (isian) => {
+  /*
+   * Tombol Simpan tidak langsung mengirim. Nomor agenda terbit begitu surat
+   * tersimpan dan tidak bisa ditarik kembali (K-5), jadi isian ditampilkan
+   * sekali lagi untuk diperiksa — salah ketik nomor surat masih sempat
+   * tertangkap di sini.
+   */
+  const kirim = handleSubmit((isian) => {
     setGalatUmum(null);
     setGalatBerkas(undefined);
 
@@ -50,14 +61,25 @@ export function SuratMasukBaruPage() {
       setGalatBerkas('Dokumen surat wajib diunggah');
       return;
     }
+    setKonfirmasi(isian);
+  });
 
+  const simpan = async (isian: Isian) => {
+    if (!berkas) return;
     try {
       const hasil = await buat.mutateAsync({
         isian: { ...isian, surat_keluar_id: suratKeluarId },
         berkas,
       });
+      setKonfirmasi(null);
+      toast.sukses(
+        'Surat masuk berhasil diregistrasi',
+        `Nomor agenda ${hasil.nomor_agenda} sudah diterbitkan sistem.`,
+      );
       navigate(`/surat-masuk/${hasil.id}`, { replace: true });
     } catch (e) {
+      setKonfirmasi(null);
+      toast.galat('Surat masuk gagal disimpan', pesanError(e));
       /* 400/422 membawa galat per field — pasang di kolomnya masing-masing
          supaya pengguna tidak perlu menebak mana yang salah. */
       const perField = errorField(e);
@@ -72,10 +94,11 @@ export function SuratMasukBaruPage() {
       }
       setProgress(null);
     }
-  });
+  };
 
   return (
-    <form onSubmit={kirim} noValidate className="mx-auto max-w-[900px]">
+    <>
+      <form onSubmit={kirim} noValidate className="mx-auto max-w-[900px]">
       <Card>
         <CardHeader
           judul="Data Surat"
@@ -196,11 +219,51 @@ export function SuratMasukBaruPage() {
           <Button asChild>
             <Link to="/surat-masuk">Batal</Link>
           </Button>
-          <Button type="submit" ragam="utama" disabled={isSubmitting}>
-            {isSubmitting ? 'Menyimpan…' : 'Simpan Surat'}
+          <Button type="submit" ragam="utama" disabled={isSubmitting || buat.isPending}>
+            {'Simpan Surat'}
           </Button>
         </CardFooter>
       </Card>
-    </form>
+      </form>
+
+      <ConfirmDialog
+        terbuka={konfirmasi !== null}
+        onTutup={() => setKonfirmasi(null)}
+        onSetuju={() => konfirmasi && simpan(konfirmasi)}
+        sedangProses={buat.isPending}
+        judul="Simpan surat masuk ini?"
+        labelSetuju="Ya, Simpan Surat"
+        labelBatal="Periksa Lagi"
+        keterangan={
+          <>
+            Periksa kembali rincian di bawah. Nomor agenda diterbitkan sistem saat surat
+            tersimpan dan tidak dapat diubah setelahnya.
+          </>
+        }
+        rincian={
+          konfirmasi
+            ? [
+                { label: 'Nomor surat', nilai: konfirmasi.nomor_surat, tabular: true },
+                {
+                  label: 'Tanggal surat',
+                  nilai: tanggalPanjang(konfirmasi.tanggal_surat),
+                  tabular: true,
+                },
+                { label: 'Pengirim', nilai: konfirmasi.pengirim },
+                { label: 'Perihal', nilai: konfirmasi.perihal },
+                { label: 'PIC', nilai: konfirmasi.pic },
+                {
+                  label: 'Dokumen',
+                  nilai: berkas ? `${berkas.name} · ${ukuranBerkas(berkas.size)}` : null,
+                },
+                {
+                  label: 'Surat balasan',
+                  nilai: suratKeluarId ? 'Ditautkan' : 'Belum ditautkan',
+                },
+              ]
+            : undefined
+        }
+      />
+    </>
   );
 }

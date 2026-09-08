@@ -89,10 +89,15 @@ export default {
           from: { opacity: '0', transform: 'scale(.97) translateY(-4px)' },
           to: { opacity: '1', transform: 'scale(1) translateY(0)' },
         },
+        'toast-in': {
+          from: { opacity: '0', transform: 'translateX(12px)' },
+          to: { opacity: '1', transform: 'translateX(0)' },
+        },
       },
       animation: {
         'fade-in': 'fade-in 150ms ease-out',
         'pop-in': 'pop-in 150ms ease-out',
+        'toast-in': 'toast-in 180ms ease-out',
       },
     },
   },

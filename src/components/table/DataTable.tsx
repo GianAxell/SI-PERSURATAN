@@ -21,6 +21,13 @@ export interface MetaKolom {
   lebar?: string;
   tetap?: number;
   rata?: 'kiri' | 'kanan' | 'tengah';
+  /**
+   * Sembunyikan kolom di bawah 1280px. Dipakai untuk kolom pelengkap saja —
+   * di lebar kerja terkecil, jumlah kolom yang muat lebih sedikit daripada
+   * yang enak dilihat di 1440px, dan tabel yang menggeser mendatar membuat
+   * kolom terakhir terpotong tanpa tanda apa pun bahwa ia bisa digeser.
+   */
+  sembunyiSempit?: boolean;
 }
 
 declare module '@tanstack/react-table' {
@@ -60,7 +67,7 @@ export function DataTable<T>({
   return (
     <div className="overflow-hidden rounded-card border border-line bg-surface shadow-card">
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[900px] border-collapse text-base">
+        <table className="w-full min-w-[820px] border-collapse text-base">
           <thead>
             {table.getHeaderGroups().map((grup) => (
               <tr key={grup.id} className="h-11 bg-surface-muted">
@@ -72,6 +79,7 @@ export function DataTable<T>({
                       style={{ width: m?.lebar, minWidth: m?.tetap }}
                       className={cn(
                         'whitespace-nowrap px-6 text-label font-medium text-ink-muted',
+                        m?.sembunyiSempit && 'hidden xl:table-cell',
                         m?.rata === 'kanan'
                           ? 'text-right'
                           : m?.rata === 'tengah'
@@ -92,7 +100,13 @@ export function DataTable<T>({
               ? Array.from({ length: jumlahBarisSkeleton }).map((_, i) => (
                   <tr key={i} className="h-[54px] border-t border-line">
                     {table.getAllLeafColumns().map((k) => (
-                      <td key={k.id} className="px-6">
+                      <td
+                        key={k.id}
+                        className={cn(
+                          'px-6',
+                          k.columnDef.meta?.sembunyiSempit && 'hidden xl:table-cell',
+                        )}
+                      >
                         <Skeleton className="h-2.5 w-full max-w-[160px]" />
                       </td>
                     ))}
@@ -113,7 +127,8 @@ export function DataTable<T>({
                         <td
                           key={sel.id}
                           className={cn(
-                            'px-6 text-ink',
+                            'px-6 py-2 text-ink',
+                            m?.sembunyiSempit && 'hidden xl:table-cell',
                             m?.rata === 'kanan'
                               ? 'text-right'
                               : m?.rata === 'tengah'

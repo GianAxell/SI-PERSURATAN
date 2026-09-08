@@ -53,18 +53,49 @@ function pad(n: number, panjang = 4) {
   return String(n).padStart(panjang, '0');
 }
 
-/** Tanggal mundur dari 2026-08-20, satu surat kira-kira tiap dua hari. */
+/**
+ * Tanggal mundur dari 2026-09-06, satu surat kira-kira tiap dua hari.
+ * Jangkarnya sengaja dekat dengan hari ini: surat masuk terbaru mestinya
+ * baru datang, bukan berumur tiga minggu.
+ */
 function tanggalKe(i: number) {
-  const d = new Date(Date.UTC(2026, 7, 20));
+  const d = new Date(Date.UTC(2026, 8, 6));
   d.setUTCDate(d.getUTCDate() - i * 2);
   return d.toISOString().slice(0, 10);
 }
 
+/*
+ * Status mengikuti umur surat, bukan sekadar berputar. Surat lama umumnya
+ * sudah selesai; yang masih berjalan adalah surat baru. Kalau diputar rata,
+ * surat bulan Mei ikut berstatus "belum dibaca" dan seluruh papan menjadi
+ * merah oleh penanda terlambat — penanda itu jadi tidak berarti apa-apa.
+ */
 function statusKe(i: number): StatusDisposisi | null {
   if (i % 7 === 3) return null; // sebagian surat memang belum didisposisi
+
+  if (i >= 40) {
+    /* Sisakan sedikit yang benar-benar tertinggal, supaya "terlambat" ada
+       contohnya tanpa menjadi keadaan mayoritas. */
+    return i % 9 === 0 ? 'diproses' : 'selesai';
+  }
+
   const urut: StatusDisposisi[] = ['belum_dibaca', 'diproses', 'selesai'];
   return urut[i % 3];
 }
+
+/** Tenggat nyata bervariasi; 4–13 hari sesudah tanggal surat. */
+function batasHari(i: number) {
+  return 4 + (i % 4) * 3;
+}
+
+const INSTRUKSI = [
+  'Mohon disiapkan surat balasan dan koordinasi dengan bagian terkait',
+  'Tolong ditindaklanjuti dan laporkan hasilnya',
+  'Mohon dipelajari, sampaikan pendapat sebelum batas waktu',
+  'Harap diarsipkan dan diteruskan ke bagian yang berkepentingan',
+  'Mohon disiapkan data pendukung untuk rapat',
+  'Silakan dijadwalkan dan konfirmasikan ke pengirim',
+];
 
 /**
  * Bentuk internal mock. Selain yang dikirim ke frontend, ia menyimpan waktu
@@ -91,7 +122,7 @@ function buatSurat(i: number): CatatanSurat {
   const pengirim = PENGIRIM[i % PENGIRIM.length];
   const perihal = PERIHAL[i % PERIHAL.length];
   const batasWaktu = new Date(`${tanggal}T00:00:00Z`);
-  batasWaktu.setUTCDate(batasWaktu.getUTCDate() + 4);
+  batasWaktu.setUTCDate(batasWaktu.getUTCDate() + batasHari(i));
   const batas = batasWaktu.toISOString().slice(0, 10);
 
   const lewat = new Date(batas) < new Date() && status !== 'selesai';
@@ -111,7 +142,7 @@ function buatSurat(i: number): CatatanSurat {
             id: 1000 + i,
             penerima: PEGAWAI[i % PEGAWAI.length],
             pemberi: PEMBERI,
-            instruksi: 'Mohon disiapkan surat balasan dan koordinasi dengan bagian terkait',
+            instruksi: INSTRUKSI[i % INSTRUKSI.length],
             batas_waktu: batas,
             status,
             terlambat: lewat,
@@ -129,10 +160,12 @@ function buatSurat(i: number): CatatanSurat {
                   id: 2000 + i,
                   penerima: PEGAWAI[(i + 2) % PEGAWAI.length],
                   pemberi: PEMBERI,
-                  instruksi: 'Tolong siapkan data pendukungnya',
+                  instruksi: INSTRUKSI[(i + 3) % INSTRUKSI.length],
                   batas_waktu: batas,
                   status: 'diproses' as StatusDisposisi,
-                  terlambat: false,
+                  /* Batas waktunya sama dengan disposisi pertama, jadi
+                     keterlambatannya harus dihitung sama pula. */
+                  terlambat: new Date(batas) < new Date(),
                   dibuat_pada: jam(1, '09:20:00'),
                   dibaca_pada: jam(1, '15:05:00'),
                   selesai_pada: null,
