@@ -94,14 +94,6 @@ export function SuratKeluarListPage() {
         ),
       },
       {
-        accessorKey: 'perihal',
-        header: 'Perihal',
-        meta: { lebar: '24%' },
-        cell: (c) => (
-          <span className="line-clamp-2 leading-snug">{c.getValue() as string}</span>
-        ),
-      },
-      {
         accessorKey: 'kepada',
         header: 'Kepada',
         meta: { lebar: '20%' },
@@ -109,6 +101,14 @@ export function SuratKeluarListPage() {
           <span className="line-clamp-2 leading-snug text-ink-muted">
             {c.getValue() as string}
           </span>
+        ),
+      },
+      {
+        accessorKey: 'perihal',
+        header: 'Perihal',
+        meta: { lebar: '24%' },
+        cell: (c) => (
+          <span className="line-clamp-2 leading-snug">{c.getValue() as string}</span>
         ),
       },
       {
