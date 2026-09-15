@@ -75,10 +75,46 @@ function jenis(kode: string) {
 const FIELD_INVOICE: Omit<TemplateField, 'id'>[] = [
   { field_key: 'kepada', label: 'Kepada', tipe: 'text', is_required: true, nilai_bawaan: null, urutan: 1, opsi: null },
   { field_key: 'perihal', label: 'Perihal', tipe: 'text', is_required: true, nilai_bawaan: null, urutan: 2, opsi: null },
-  { field_key: 'tanggal', label: 'Tanggal surat', tipe: 'date', is_required: true, nilai_bawaan: null, urutan: 3, opsi: null },
+  { field_key: 'tanggal_surat', label: 'Tanggal surat', tipe: 'date', is_required: true, nilai_bawaan: null, urutan: 3, opsi: null },
   { field_key: 'pic', label: 'PIC', tipe: 'text', is_required: false, nilai_bawaan: null, urutan: 4, opsi: null },
   { field_key: 'nilai', label: 'Nilai tagihan', tipe: 'number', is_required: true, nilai_bawaan: null, urutan: 5, opsi: null },
   { field_key: 'isi', label: 'Isi surat', tipe: 'textarea', is_required: false, nilai_bawaan: null, urutan: 6, opsi: null },
+];
+
+// Fields untuk FIN.02 - Pembayaran
+const FIELD_FIN02: Omit<TemplateField, 'id'>[] = [
+  { field_key: 'kepada', label: 'Kepada', tipe: 'text', is_required: true, nilai_bawaan: null, urutan: 1, opsi: null },
+  { field_key: 'perihal', label: 'Perihal', tipe: 'text', is_required: true, nilai_bawaan: null, urutan: 2, opsi: null },
+  { field_key: 'tanggal_surat', label: 'Tanggal surat', tipe: 'date', is_required: true, nilai_bawaan: null, urutan: 3, opsi: null },
+  { field_key: 'pic', label: 'PIC / Penandatangan', tipe: 'text', is_required: true, nilai_bawaan: null, urutan: 4, opsi: null },
+  { field_key: 'nomor_referensi', label: 'Nomor invoice/referensi', tipe: 'text', is_required: false, nilai_bawaan: null, urutan: 5, opsi: null },
+  { field_key: 'nilai', label: 'Nilai pembayaran', tipe: 'number', is_required: true, nilai_bawaan: null, urutan: 6, opsi: null },
+  { field_key: 'tanggal_pembayaran', label: 'Tanggal pembayaran', tipe: 'date', is_required: true, nilai_bawaan: null, urutan: 7, opsi: null },
+  { field_key: 'metode_pembayaran', label: 'Metode pembayaran', tipe: 'select', is_required: true, nilai_bawaan: null, urutan: 8, opsi: ['Transfer Bank', 'Tunai', 'Lainnya'] },
+  { field_key: 'isi', label: 'Isi surat / catatan tambahan', tipe: 'textarea', is_required: false, nilai_bawaan: null, urutan: 9, opsi: null },
+];
+
+// Fields untuk FIN.04 - Kuitansi
+const FIELD_FIN04: Omit<TemplateField, 'id'>[] = [
+  { field_key: 'diterima_dari', label: 'Diterima dari', tipe: 'text', is_required: true, nilai_bawaan: null, urutan: 1, opsi: null },
+  { field_key: 'jumlah_uang', label: 'Jumlah uang', tipe: 'number', is_required: true, nilai_bawaan: null, urutan: 2, opsi: null },
+  { field_key: 'terbilang', label: 'Terbilang', tipe: 'text', is_required: true, nilai_bawaan: null, urutan: 3, opsi: null },
+  { field_key: 'untuk_pembayaran', label: 'Untuk pembayaran', tipe: 'text', is_required: true, nilai_bawaan: null, urutan: 4, opsi: null },
+  { field_key: 'tanggal_surat', label: 'Tanggal surat', tipe: 'date', is_required: true, nilai_bawaan: null, urutan: 5, opsi: null },
+  { field_key: 'pic', label: 'PIC / Penerima', tipe: 'text', is_required: true, nilai_bawaan: null, urutan: 6, opsi: null },
+];
+
+// Fields untuk FIN.05 - Permintaan Pembayaran
+const FIELD_FIN05: Omit<TemplateField, 'id'>[] = [
+  { field_key: 'kepada', label: 'Kepada', tipe: 'text', is_required: true, nilai_bawaan: null, urutan: 1, opsi: null },
+  { field_key: 'perihal', label: 'Perihal', tipe: 'text', is_required: true, nilai_bawaan: null, urutan: 2, opsi: null },
+  { field_key: 'tanggal_surat', label: 'Tanggal surat', tipe: 'date', is_required: true, nilai_bawaan: null, urutan: 3, opsi: null },
+  { field_key: 'pic', label: 'PIC / Penandatangan', tipe: 'text', is_required: true, nilai_bawaan: null, urutan: 4, opsi: null },
+  { field_key: 'nomor_referensi', label: 'Nomor invoice referensi', tipe: 'text', is_required: false, nilai_bawaan: null, urutan: 5, opsi: null },
+  { field_key: 'nilai', label: 'Nilai tagihan', tipe: 'number', is_required: true, nilai_bawaan: null, urutan: 6, opsi: null },
+  { field_key: 'batas_waktu_pembayaran', label: 'Batas waktu pembayaran', tipe: 'date', is_required: true, nilai_bawaan: null, urutan: 7, opsi: null },
+  { field_key: 'metode_pembayaran', label: 'Metode pembayaran', tipe: 'select', is_required: false, nilai_bawaan: null, urutan: 8, opsi: ['Transfer Bank', 'Tunai', 'Lainnya'] },
+  { field_key: 'isi', label: 'Isi surat / catatan tambahan', tipe: 'textarea', is_required: false, nilai_bawaan: null, urutan: 9, opsi: null },
 ];
 
 const KONTEN_CONTOH = `<div class="kop">
@@ -99,6 +135,130 @@ const KONTEN_CONTOH = `<div class="kop">
   <p>{pic}</p>
 </div>`;
 
+// Konten HTML untuk FIN.02 - Pembayaran
+const KONTEN_FIN02 = `<div class="kop">
+  <h1>PT METANOUVA INFORMATIKA</h1>
+  <p>Jl. Gn. Batu Dalam Komplek Citra Asri Permai No.C-26, Pasirkaliki, Kec. Cimahi Utara, Kota Cimahi, Jawa Barat 40514</p>
+  <p>Email: info@digitak.id</p>
+</div>
+
+<p>{nomor_surat}</p>
+<p>Cimahi, {tanggal_surat}</p>
+
+<p>Kepada Yth.<br>{kepada}</p>
+
+<p>Perihal: {perihal}</p>
+
+<p>Dengan hormat,</p>
+
+<p>Bersama surat ini kami sampaikan bahwa pembayaran atas invoice/tagihan berikut telah/akan kami laksanakan:</p>
+
+<table>
+  <tr><td>Nomor Invoice/Referensi</td><td>: {nomor_referensi}</td></tr>
+  <tr><td>Nilai Pembayaran</td><td>: Rp {nilai}</td></tr>
+  <tr><td>Tanggal Pembayaran</td><td>: {tanggal_pembayaran}</td></tr>
+  <tr><td>Metode Pembayaran</td><td>: {metode_pembayaran}</td></tr>
+</table>
+
+<p>{isi}</p>
+
+<p>Demikian pemberitahuan ini kami sampaikan. Atas perhatian dan kerja sama Bapak/Ibu, kami ucapkan terima kasih.</p>
+
+<div class="penutup">
+  <p>Hormat kami,</p>
+  <p>PT Metanouva Informatika</p>
+  <br><br>
+  <p>{pic}</p>
+</div>`;
+
+// Konten HTML untuk FIN.04 - Kuitansi
+const KONTEN_FIN04 = `<div class="kop">
+  <h1>PT METANOUVA INFORMATIKA</h1>
+  <p>Jl. Gn. Batu Dalam Komplek Citra Asri Permai No.C-26, Pasirkaliki, Kec. Cimahi Utara, Kota Cimahi, Jawa Barat 40514</p>
+  <p>Email: info@digitak.id</p>
+</div>
+
+<h2 style="text-align: center;">KUITANSI</h2>
+<p>No. {nomor_surat}</p>
+
+<table>
+  <tr><td>Sudah terima dari</td><td>: {diterima_dari}</td></tr>
+  <tr><td>Uang sejumlah</td><td>: Rp {jumlah_uang}</td></tr>
+  <tr><td>Terbilang</td><td>: {terbilang}</td></tr>
+  <tr><td>Untuk pembayaran</td><td>: {untuk_pembayaran}</td></tr>
+</table>
+
+<div class="penutup">
+  <p>Cimahi, {tanggal_surat}</p>
+  <p>Yang menerima,</p>
+  <p><em>(materai bila nilai ≥ Rp 5.000.000)</em></p>
+  <br><br>
+  <p>{pic}</p>
+</div>`;
+
+// Konten HTML untuk FIN.05 - Permintaan Pembayaran
+const KONTEN_FIN05 = `<div class="kop">
+  <h1>PT METANOUVA INFORMATIKA</h1>
+  <p>Jl. Gn. Batu Dalam Komplek Citra Asri Permai No.C-26, Pasirkaliki, Kec. Cimahi Utara, Kota Cimahi, Jawa Barat 40514</p>
+  <p>Email: info@digitak.id</p>
+</div>
+
+<p>{nomor_surat}</p>
+<p>Cimahi, {tanggal_surat}</p>
+
+<p>Kepada Yth.<br>{kepada}</p>
+
+<p>Perihal: {perihal}</p>
+
+<p>Dengan hormat,</p>
+
+<p>Sehubungan dengan invoice yang telah kami terbitkan, dengan ini kami sampaikan permintaan pembayaran sebagai berikut:</p>
+
+<table>
+  <tr><td>Nomor Invoice</td><td>: {nomor_referensi}</td></tr>
+  <tr><td>Nilai Tagihan</td><td>: Rp {nilai}</td></tr>
+  <tr><td>Batas Waktu</td><td>: {batas_waktu_pembayaran}</td></tr>
+  <tr><td>Metode Pembayaran</td><td>: {metode_pembayaran}</td></tr>
+</table>
+
+<p>{isi}</p>
+
+<p>Kami mohon agar pembayaran dapat dilakukan sebelum batas waktu di atas. Atas perhatian dan kerja sama Bapak/Ibu, kami ucapkan terima kasih.</p>
+
+<div class="penutup">
+  <p>Hormat kami,</p>
+  <p>PT Metanouva Informatika</p>
+  <br><br>
+  <p>{pic}</p>
+</div>`;
+
+// Konten HTML untuk FIN.03 - Invoice (diperbarui dengan alamat lengkap)
+const KONTEN_FIN03 = `<div class="kop">
+  <h1>PT METANOUVA INFORMATIKA</h1>
+  <p>Jl. Gn. Batu Dalam Komplek Citra Asri Permai No.C-26, Pasirkaliki, Kec. Cimahi Utara, Kota Cimahi, Jawa Barat 40514</p>
+  <p>Email: info@digitak.id</p>
+</div>
+
+<p>{nomor_surat}</p>
+<p>Cimahi, {tanggal_surat}</p>
+
+<p>Kepada Yth.<br>{kepada}</p>
+
+<p>Perihal: {perihal}</p>
+
+<p>Dengan hormat,</p>
+
+<p>{isi}</p>
+
+<p>Nilai tagihan: Rp {nilai}</p>
+
+<div class="penutup">
+  <p>Hormat kami,</p>
+  <p>PT Metanouva Informatika</p>
+  <br><br>
+  <p>{pic}</p>
+</div>`;
+
 let idField = 1;
 const buatField = (dasar: Omit<TemplateField, 'id'>[]): TemplateField[] =>
   dasar.map((f) => ({ ...f, id: idField++ }));
@@ -108,7 +268,7 @@ export const TEMPLATE: Template[] = [
     id: 1,
     nama: 'Invoice Standar',
     jenis_surat: jenis('FIN.03'),
-    konten_html: KONTEN_CONTOH,
+    konten_html: KONTEN_FIN03,
     format_nomor: '{urut}/{bagian}.{kode}/{perusahaan}/{bulan_romawi}/{tahun}',
     is_active: true,
     fields: buatField(FIELD_INVOICE),
@@ -117,7 +277,7 @@ export const TEMPLATE: Template[] = [
     id: 2,
     nama: 'Invoice Termin Proyek',
     jenis_surat: jenis('FIN.03'),
-    konten_html: KONTEN_CONTOH,
+    konten_html: KONTEN_FIN03,
     format_nomor: '{urut}/{bagian}.{kode}/{perusahaan}/{bulan_romawi}/{tahun}',
     is_active: false,
     fields: buatField([
@@ -129,28 +289,28 @@ export const TEMPLATE: Template[] = [
     id: 3,
     nama: 'Kuitansi Standar',
     jenis_surat: jenis('FIN.04'),
-    konten_html: KONTEN_CONTOH,
+    konten_html: KONTEN_FIN04,
     format_nomor: '{urut}/{bagian}.{kode}/{perusahaan}/{bulan_romawi}/{tahun}',
     is_active: true,
-    fields: buatField(FIELD_INVOICE.slice(0, 5)),
+    fields: buatField(FIELD_FIN04),
   },
   {
     id: 4,
     nama: 'Permintaan Pembayaran',
     jenis_surat: jenis('FIN.05'),
-    konten_html: KONTEN_CONTOH,
+    konten_html: KONTEN_FIN05,
     format_nomor: '{urut}/{bagian}.{kode}/{perusahaan}/{bulan_romawi}/{tahun}',
     is_active: true,
-    fields: buatField(FIELD_INVOICE.slice(0, 4)),
+    fields: buatField(FIELD_FIN05),
   },
   {
     id: 5,
     nama: 'Pembayaran Standar',
     jenis_surat: jenis('FIN.02'),
-    konten_html: KONTEN_CONTOH,
+    konten_html: KONTEN_FIN02,
     format_nomor: '{urut}/{bagian}.{kode}/{perusahaan}/{bulan_romawi}/{tahun}',
     is_active: true,
-    fields: buatField(FIELD_INVOICE.slice(0, 4)),
+    fields: buatField(FIELD_FIN02),
   },
 ];
 
