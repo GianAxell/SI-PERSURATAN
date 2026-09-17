@@ -1,31 +1,40 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { ArrowLeft, ArrowRight, Check, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody, CardFooter, CardHeader } from '@/components/ui/Card';
-import { Field } from '@/components/ui/Field';
-import { FileUpload } from '@/components/ui/FileUpload';
-import { Input, Textarea } from '@/components/ui/Input';
-import { DateInput } from '@/components/ui/DateInput';
-import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { PdfPreview } from '@/components/ui/PdfPreview';
 import { useToast } from '@/components/ui/Toast';
+import { Skeleton } from '@/components/ui/Skeleton';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { errorField, pesanError } from '@/lib/api';
-import { tanggalPanjang, ukuranBerkas } from '@/lib/format';
+import { cn } from '@/lib/cn';
+import { rupiah, tanggalPanjang, ukuranBerkas } from '@/lib/format';
 import { PilihSuratKeluar } from './PilihSuratKeluar';
 import { useBuatSuratMasuk } from './api';
+import { FieldDinamis, nilaiAwal, skemaDari, type NilaiDinamis } from '../surat-keluar/FieldDinamis';
+import { Field } from '@/components/ui/Field';
+import { Input, Textarea } from '@/components/ui/Input';
+import { DateInput } from '@/components/ui/DateInput';
+import { FileUpload } from '@/components/ui/FileUpload';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 const skema = z.object({
-  nomor_surat: z.string().min(1, 'Nomor surat wajib diisi'),
+  nomor_surat: z.string().optional(),
   tanggal_surat: z.string().min(1, 'Tanggal surat wajib diisi'),
   perihal: z.string().min(1, 'Perihal wajib diisi'),
   pic: z.string().min(1, 'PIC wajib diisi'),
   pengirim: z.string().min(1, 'Pengirim wajib diisi'),
-  keterangan: z.string().optional(),
+  keterangan: z.string().nullable().optional(),
+  jenis_input: z.enum(['otomatis', 'manual']).default('manual'),
 });
 
 type Isian = z.infer<typeof skema>;
+
+const LANGKAH = ['Pilih Jenis', 'Isi Data', 'Pratinjau'] as const;
 
 /** Layar 03 Registrasi Surat Masuk (UC-02). */
 export function SuratMasukBaruPage() {
@@ -37,6 +46,7 @@ export function SuratMasukBaruPage() {
   const [progress, setProgress] = useState<number | null>(null);
   const [galatUmum, setGalatUmum] = useState<string | null>(null);
   const [suratKeluarId, setSuratKeluarId] = useState<number | null>(null);
+  const [jenisInput, setJenisInput] = useState<'otomatis' | 'manual'>('manual');
 
   const buat = useBuatSuratMasuk(setProgress);
 
@@ -47,12 +57,6 @@ export function SuratMasukBaruPage() {
     formState: { errors, isSubmitting },
   } = useForm<Isian>({ resolver: zodResolver(skema) });
 
-  /*
-   * Tombol Simpan tidak langsung mengirim. Nomor agenda terbit begitu surat
-   * tersimpan dan tidak bisa ditarik kembali (K-5), jadi isian ditampilkan
-   * sekali lagi untuk diperiksa — salah ketik nomor surat masih sempat
-   * tertangkap di sini.
-   */
   const kirim = handleSubmit((isian) => {
     setGalatUmum(null);
     setGalatBerkas(undefined);
@@ -61,14 +65,39 @@ export function SuratMasukBaruPage() {
       setGalatBerkas('Dokumen surat wajib diunggah');
       return;
     }
-    setKonfirmasi(isian);
+
+    if (jenisInput === 'manual' && !isian.nomor_surat?.trim()) {
+      setError('nomor_surat', { message: 'Nomor surat wajib diisi saat mode manual' });
+      return;
+    }
+
+    setKonfirmasi({ ...isian, jenis_input: jenisInput });
   });
+  const pindah = (bagianBaru: Record<string, string | null>) => {
+    const baru = new URLSearchParams(params);
+    for (const [kunci, nilai] of Object.entries(bagianBaru)) {
+      if (nilai === null) baru.delete(kunci);
+      else baru.set(kunci, nilai);
+    }
+    setParams(baru);
+  };
+
+  const keLangkah = (n: number) => pindah({ langkah: String(n) });
+
+  const lanjutDariIsian = () => {
+    if (jenisInput === 'manual' && !isian.nomor_surat?.trim()) {
+      setError('nomor_surat', { message: 'Nomor surat wajib diisi saat mode manual' });
+      return;
+    }
+    setGalatField({});
+    keLangkah(3);
+  };
 
   const simpan = async (isian: Isian) => {
     if (!berkas) return;
     try {
       const hasil = await buat.mutateAsync({
-        isian: { ...isian, surat_keluar_id: suratKeluarId },
+        isian: { ...isian, surat_keluar_id: suratKeluarId, jenis_input: isian.jenis_input },
         berkas,
       });
       setKonfirmasi(null);
@@ -80,8 +109,6 @@ export function SuratMasukBaruPage() {
     } catch (e) {
       setKonfirmasi(null);
       toast.galat('Surat masuk gagal disimpan', pesanError(e));
-      /* 400/422 membawa galat per field — pasang di kolomnya masing-masing
-         supaya pengguna tidak perlu menebak mana yang salah. */
       const perField = errorField(e);
       const kunci = Object.keys(perField);
       if (kunci.length) {
@@ -117,13 +144,44 @@ export function SuratMasukBaruPage() {
             )}
           </Field>
 
-          <Field label="Nomor surat" wajib galat={errors.nomor_surat?.message}>
+          <Field label="Mode nomor surat" keterangan="Pilih cara pengisian nomor surat" className="lg:col-span-2">
+            {(p) => (
+              <div className="flex items-center gap-6" {...p}>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="jenis_input"
+                    value="otomatis"
+                    checked={jenisInput === 'otomatis'}
+                    onChange={() => setJenisInput('otomatis')}
+                    className="w-4 h-4 accent-accent"
+                  />
+                  <span className="text-base text-ink">Otomatis (generate dari sistem)</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="jenis_input"
+                    value="manual"
+                    checked={jenisInput === 'manual'}
+                    onChange={() => setJenisInput('manual')}
+                    className="w-4 h-4 accent-accent"
+                  />
+                  <span className="text-base text-ink">Manual (isi sendiri)</span>
+                </label>
+              </div>
+            )}
+          </Field>
+
+          <Field label="Nomor surat" wajib={jenisInput === 'manual'} galat={errors.nomor_surat?.message}>
             {(p) => (
               <Input
                 {...p}
                 {...register('nomor_surat')}
-                placeholder="421.3/35/Hubin/SMK/2026"
+                placeholder="Contoh: 0001/2026/DIR.01/Digitak/IX/2026"
                 autoFocus
+                disabled={jenisInput === 'otomatis'}
+                value={jenisInput === 'otomatis' ? '' : undefined}
               />
             )}
           </Field>
@@ -243,6 +301,7 @@ export function SuratMasukBaruPage() {
         rincian={
           konfirmasi
             ? [
+                { label: 'Mode', nilai: konfirmasi.jenis_input === 'otomatis' ? 'Otomatis' : 'Manual', tabular: true },
                 { label: 'Nomor surat', nilai: konfirmasi.nomor_surat, tabular: true },
                 {
                   label: 'Tanggal surat',
@@ -259,6 +318,7 @@ export function SuratMasukBaruPage() {
                 {
                   label: 'Surat balasan',
                   nilai: suratKeluarId ? 'Ditautkan' : 'Belum ditautkan',
+                  tabular: true,
                 },
               ]
             : undefined
@@ -266,4 +326,16 @@ export function SuratMasukBaruPage() {
       />
     </>
   );
+}
+
+function Kosong(): Isian {
+  return {
+    nomor_surat: '',
+    tanggal_surat: '',
+    perihal: '',
+    pic: '',
+    pengirim: '',
+    keterangan: null,
+    jenis_input: 'manual',
+  };
 }

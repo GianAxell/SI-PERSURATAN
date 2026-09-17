@@ -77,7 +77,7 @@ export function TemplatePage() {
                   {t.is_active ? <Badge nada="hijau">Aktif</Badge> : null}
                 </span>
                 <span className="tabular text-note text-ink-subtle">
-                  {t.jenis_surat.kode} · {t.fields.length} field
+                  {t.jenis_surat.kode} · {(t.fields?.length ?? 0)} field
                 </span>
               </button>
             ))

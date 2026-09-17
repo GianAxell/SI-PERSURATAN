@@ -8,6 +8,7 @@ import { PdfPreview } from '@/components/ui/PdfPreview';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { tanggalPanjang, ukuranBerkas } from '@/lib/format';
+import { ambilToken } from '@/lib/api';
 import { BuatDisposisiModal } from './BuatDisposisiModal';
 import { TandaiBalasanModal } from './TandaiBalasanModal';
 import { useSuratMasukDetail } from './api';
@@ -183,7 +184,7 @@ export function SuratMasukDetailPage() {
                     Pratinjau PDF
                   </Button>
                   <Button ukuran="kecil" asChild>
-                    <a href={`/api/surat-masuk/${surat.id}/file`} download>
+                    <a href={`/api/surat-masuk/${surat.id}/file?token=${ambilToken() ?? ''}`} download>
                       <Download size={13} />
                       Unduh
                     </a>

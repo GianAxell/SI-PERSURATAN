@@ -1,13 +1,15 @@
 import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ChevronLeft, Download, FileText } from 'lucide-react';
+import { ArrowRight, ChevronLeft, Download, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { PdfPreview } from '@/components/ui/PdfPreview';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { StatusBadge } from '@/components/ui/StatusBadge';
 import { ambilToken } from '@/lib/api';
 import { rupiah, tanggalPanjang, waktuPanjang } from '@/lib/format';
+import { useSuratMasukDetail } from '@/features/surat-masuk/api';
 import { useTemplate } from '@/features/master/api';
 import { useSuratKeluarDetail } from './api';
 
@@ -16,6 +18,9 @@ export function SuratKeluarDetailPage() {
   const { id } = useParams();
   const { data: surat, isPending, isError } = useSuratKeluarDetail(id);
   const { data: template } = useTemplate(surat?.template.id ?? null);
+  const { data: suratMasuk } = useSuratMasukDetail(
+    surat?.membalas_surat_masuk ? String(surat.membalas_surat_masuk.id) : undefined,
+  );
   const [pratinjau, setPratinjau] = useState(false);
 
   if (isPending) return <KerangkaDetail />;
@@ -170,6 +175,78 @@ export function SuratKeluarDetailPage() {
                 terbitkan surat baru dan tandai surat lama sebagai tidak berlaku pada
                 catatan internal.
               </p>
+            </CardBody>
+          </Card>
+
+          <Card>
+            <CardHeader
+              judul="Disposisi"
+              keterangan={
+                surat.membalas_surat_masuk
+                  ? `Dari surat masuk ${surat.membalas_surat_masuk.nomor_agenda}`
+                  : 'Surat ini bukan balasan surat masuk.'
+              }
+            />
+            <CardBody className="flex flex-col gap-3">
+              {surat.membalas_surat_masuk ? (
+                suratMasuk ? (
+                  suratMasuk.disposisi.length > 0 ? (
+                    <>
+                      {suratMasuk.disposisi.map((d) => (
+                        <div
+                          key={d.id}
+                          className="rounded-control border border-line px-3 py-2.5"
+                        >
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="text-base font-medium text-ink">
+                              {d.penerima.nama}
+                            </span>
+                            <StatusBadge status={d.status} terlambat={d.terlambat} />
+                          </div>
+                          <p className="mt-1 line-clamp-2 text-label leading-snug text-ink-muted">
+                            {d.instruksi}
+                          </p>
+                          {d.batas_waktu ? (
+                            <p className="mt-1 text-note text-ink-subtle">
+                              Batas: {tanggalPanjang(d.batas_waktu)}
+                            </p>
+                          ) : null}
+                        </div>
+                      ))}
+
+                      <Button asChild penuh>
+                        <Link to="/disposisi">
+                          Lihat Disposisi
+                          <ArrowRight size={15} />
+                        </Link>
+                      </Button>
+                    </>
+                  ) : (
+                    <p className="text-label text-ink-subtle">
+                      Belum ada disposisi pada surat masuk ini.
+                    </p>
+                  )
+                ) : (
+                  <div className="flex flex-col gap-2">
+                    <Skeleton className="h-16 w-full" />
+                    <Skeleton className="h-16 w-full" />
+                  </div>
+                )
+              ) : (
+                <>
+                  <p className="text-label leading-relaxed text-ink-muted">
+                    Disposisi dibuat pada surat masuk yang dibalas. Surat keluar ini tidak
+                    membalas surat masuk mana pun, jadi tidak ada disposisi yang bisa
+                    ditampilkan di sini.
+                  </p>
+                  <Button asChild penuh>
+                    <Link to="/disposisi">
+                      Lihat Disposisi
+                      <ArrowRight size={15} />
+                    </Link>
+                  </Button>
+                </>
+              )}
             </CardBody>
           </Card>
         </div>

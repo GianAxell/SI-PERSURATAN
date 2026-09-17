@@ -12,7 +12,7 @@ import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Textarea } from '@/components/ui/Input';
 import { Timeline } from '@/components/ui/Timeline';
 import { useToast } from '@/components/ui/Toast';
-import { pesanError } from '@/lib/api';
+import { ambilToken, pesanError } from '@/lib/api';
 import { tanggalPanjang } from '@/lib/format';
 import { STATUS_DISPOSISI } from '@/lib/status';
 import type { StatusDisposisi } from '@/types';
@@ -131,7 +131,7 @@ export function DisposisiDetailPage() {
                     Pratinjau PDF
                   </Button>
                   <Button ukuran="kecil" asChild>
-                    <a href={`/api/surat-masuk/${d.surat.id}/file`} download>
+                    <a href={`/api/surat-masuk/${d.surat.id}/file?token=${ambilToken() ?? ''}`} download>
                       <Download size={13} />
                       Unduh
                     </a>

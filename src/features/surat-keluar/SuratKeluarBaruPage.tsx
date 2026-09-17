@@ -14,6 +14,9 @@ import { useBagian, useDaftarTemplate, useJenisSurat, useTemplate } from '@/feat
 import type { SuratKeluar, TemplateField } from '@/types';
 import { useBuatSuratKeluar } from './api';
 import { FieldDinamis, nilaiAwal, skemaDari, type NilaiDinamis } from './FieldDinamis';
+import { Field } from '@/components/ui/Field';
+import { Input } from '@/components/ui/Input';
+import { DateInput } from '@/components/ui/DateInput';
 
 const LANGKAH = ['Pilih Jenis', 'Isi Data', 'Pratinjau'] as const;
 
@@ -77,20 +80,39 @@ export function SuratKeluarBaruPage() {
   const keLangkah = (n: number) => pindah({ langkah: String(n) });
 
   const lanjutDariIsian = () => {
+    /* Validasi kolom tetap manual (tidak di zod) */
+    const galatTetap: Record<string, string> = {};
+    if (!isian.tanggal?.trim()) galatTetap.tanggal = 'Tanggal surat wajib diisi';
+    if (!isian.kepada?.trim()) galatTetap.kepada = 'Kepada wajib diisi';
+    if (!isian.perihal?.trim()) galatTetap.perihal = 'Perihal wajib diisi';
+
+    /* Validasi field dinamis dari template (zod) */
     const skema = skemaDari(fields);
     const periksa = skema.safeParse(isian);
+    const galatDinamis: Record<string, string> = {};
     if (!periksa.success) {
-      const pesan: Record<string, string> = {};
       for (const m of periksa.error.issues) {
         const kunci = String(m.path[0]);
-        if (!pesan[kunci]) pesan[kunci] = m.message;
+        if (!galatDinamis[kunci]) galatDinamis[kunci] = m.message;
       }
-      setGalatField(pesan);
+    }
+
+    const semuaGagal = { ...galatTetap, ...galatDinamis };
+    if (Object.keys(semuaGagal).length > 0) {
+      setGalatField(semuaGagal);
       return;
     }
     setGalatField({});
     keLangkah(3);
   };
+
+  /* Kolom tetap: selalu ada, tidak tergantung template */
+  const kolomTetap = [
+    { kunci: 'tanggal', label: 'Tanggal Surat', tipe: 'date' as const, wajib: true },
+    { kunci: 'kepada', label: 'Kepada', tipe: 'text' as const, wajib: true },
+    { kunci: 'perihal', label: 'Perihal', tipe: 'text' as const, wajib: true },
+    { kunci: 'pic', label: 'PIC', tipe: 'text' as const, wajib: false },
+  ];
 
   const simpan = async () => {
     if (!template) return;
@@ -152,6 +174,26 @@ export function SuratKeluarBaruPage() {
             keterangan="Kolom di bawah datang dari template, bukan dari program. Menambah kolom cukup lewat Data Master Template."
           />
           <CardBody>
+            {/* Kolom tetap: Tanggal, Kepada, Perihal, PIC — selalu ada */}
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-4 pt-2">
+              {kolomTetap.map((kolom) => (
+                <Field
+                  key={kolom.kunci}
+                  label={kolom.label}
+                  wajib={kolom.wajib}
+                  className="sm:col-span-1">
+                  {(p) => {
+                    const { tipe } = kolom;
+                    return <KolomTetap
+                      {...p}
+                      tipe={tipe}
+                      nilai={isian[kolom.kunci] ?? ''}
+                      onUbah={(v) => setIsian((s) => ({ ...s, [kolom.kunci]: v }))}
+                    />;
+                  }}
+                </Field>
+              ))}
+            </div>
             {memuatTemplate || !template ? (
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                 {Array.from({ length: 6 }, (_, i) => (
@@ -589,4 +631,30 @@ function escapeHtml(v: string) {
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/\n/g, '<br />');
+}
+
+function KolomTetap({
+  tipe,
+  nilai,
+  onUbah,
+  ...p
+}: {
+  tipe: 'text' | 'date';
+  nilai: string;
+  onUbah: (nilai: string) => void;
+  id: string;
+  'aria-invalid': boolean;
+  'aria-describedby'?: string;
+}) {
+  if (tipe === 'date') {
+    return <DateInput {...p} value={nilai} onChange={(e) => onUbah(e.target.value)} />;
+  }
+  return (
+    <Input
+      {...p}
+      value={nilai}
+      onChange={(e) => onUbah(e.target.value)}
+      placeholder="Tulis"
+    />
+  );
 }
