@@ -1,20 +1,14 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Check, FileText } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody, CardFooter, CardHeader } from '@/components/ui/Card';
-import { EmptyState } from '@/components/ui/EmptyState';
-import { PdfPreview } from '@/components/ui/PdfPreview';
 import { useToast } from '@/components/ui/Toast';
-import { Skeleton } from '@/components/ui/Skeleton';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { errorField, pesanError } from '@/lib/api';
-import { cn } from '@/lib/cn';
-import { rupiah, tanggalPanjang, ukuranBerkas } from '@/lib/format';
+import { tanggalPanjang, ukuranBerkas } from '@/lib/format';
 import { PilihSuratKeluar } from './PilihSuratKeluar';
 import { useBuatSuratMasuk } from './api';
-import { FieldDinamis, nilaiAwal, skemaDari, type NilaiDinamis } from '../surat-keluar/FieldDinamis';
 import { Field } from '@/components/ui/Field';
 import { Input, Textarea } from '@/components/ui/Input';
 import { DateInput } from '@/components/ui/DateInput';
@@ -29,19 +23,20 @@ const skema = z.object({
   pic: z.string().min(1, 'PIC wajib diisi'),
   pengirim: z.string().min(1, 'Pengirim wajib diisi'),
   keterangan: z.string().nullable().optional(),
-  jenis_input: z.enum(['otomatis', 'manual']).default('manual'),
 });
 
 type Isian = z.infer<typeof skema>;
 
-const LANGKAH = ['Pilih Jenis', 'Isi Data', 'Pratinjau'] as const;
+type IsianDenganJenis = Isian & {
+  jenis_input: 'otomatis' | 'manual';
+};
 
 /** Layar 03 Registrasi Surat Masuk (UC-02). */
 export function SuratMasukBaruPage() {
   const navigate = useNavigate();
   const toast = useToast();
   const [berkas, setBerkas] = useState<File | null>(null);
-  const [konfirmasi, setKonfirmasi] = useState<Isian | null>(null);
+  const [konfirmasi, setKonfirmasi] = useState<IsianDenganJenis | null>(null);
   const [galatBerkas, setGalatBerkas] = useState<string | undefined>();
   const [progress, setProgress] = useState<number | null>(null);
   const [galatUmum, setGalatUmum] = useState<string | null>(null);
@@ -73,31 +68,19 @@ export function SuratMasukBaruPage() {
 
     setKonfirmasi({ ...isian, jenis_input: jenisInput });
   });
-  const pindah = (bagianBaru: Record<string, string | null>) => {
-    const baru = new URLSearchParams(params);
-    for (const [kunci, nilai] of Object.entries(bagianBaru)) {
-      if (nilai === null) baru.delete(kunci);
-      else baru.set(kunci, nilai);
-    }
-    setParams(baru);
-  };
 
-  const keLangkah = (n: number) => pindah({ langkah: String(n) });
-
-  const lanjutDariIsian = () => {
-    if (jenisInput === 'manual' && !isian.nomor_surat?.trim()) {
-      setError('nomor_surat', { message: 'Nomor surat wajib diisi saat mode manual' });
-      return;
-    }
-    setGalatField({});
-    keLangkah(3);
-  };
-
-  const simpan = async (isian: Isian) => {
+  const simpan = async (isian: IsianDenganJenis) => {
     if (!berkas) return;
     try {
+      const payload: any = { 
+        ...isian, 
+        surat_keluar_id: suratKeluarId,
+        nomor_surat: isian.nomor_surat || undefined,
+        keterangan: isian.keterangan || undefined
+      };
+      
       const hasil = await buat.mutateAsync({
-        isian: { ...isian, surat_keluar_id: suratKeluarId, jenis_input: isian.jenis_input },
+        isian: payload,
         berkas,
       });
       setKonfirmasi(null);
@@ -178,7 +161,7 @@ export function SuratMasukBaruPage() {
               <Input
                 {...p}
                 {...register('nomor_surat')}
-                placeholder="Contoh: 0001/2026/DIR.01/Digitak/IX/2026"
+                placeholder="Contoh: 0001/DIR.01/Digitak/IX/2026"
                 autoFocus
                 disabled={jenisInput === 'otomatis'}
                 value={jenisInput === 'otomatis' ? '' : undefined}
@@ -326,16 +309,4 @@ export function SuratMasukBaruPage() {
       />
     </>
   );
-}
-
-function Kosong(): Isian {
-  return {
-    nomor_surat: '',
-    tanggal_surat: '',
-    perihal: '',
-    pic: '',
-    pengirim: '',
-    keterangan: null,
-    jenis_input: 'manual',
-  };
 }

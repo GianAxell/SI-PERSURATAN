@@ -53,13 +53,14 @@ export function useSuratMasukDetail(id: string | undefined) {
 }
 
 export interface IsianSuratMasuk {
-  nomor_surat: string;
+  nomor_surat?: string;
   tanggal_surat: string;
   perihal: string;
   pic: string;
   pengirim: string;
   keterangan?: string;
   surat_keluar_id?: number | null;
+  jenis_input: 'otomatis' | 'manual';
 }
 
 export function useBuatSuratMasuk(onProgress?: (persen: number) => void) {
