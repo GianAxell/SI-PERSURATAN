@@ -66,8 +66,8 @@ export function Topbar({
           daftar={data?.daftar ?? []}
           belumDibaca={data?.belumDibaca ?? 0}
           onTandaiSemua={() => tandaiSemua.mutate()}
-          tautanSemua={pegawai ? '/disposisi-saya' : '/surat-masuk'}
-          labelSemua={pegawai ? 'Lihat semua disposisi' : 'Lihat semua surat masuk'}
+          tautanSemua={pegawai ? '' : '/surat-masuk'}
+          labelSemua={pegawai ? '' : 'Lihat semua surat masuk'}
         />
         <MenuAkun user={user} />
       </div>

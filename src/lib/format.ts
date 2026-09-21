@@ -83,3 +83,16 @@ export function bulanRomawi(v: string | Date | null | undefined) {
 export function nomorUrut(n: number, panjang = 3) {
   return String(n).padStart(panjang, '0');
 }
+
+/** 
+ * Mendapatkan inisial dari nama (maksimal 2 huruf).
+ * Mengatasi nama dengan satu kata atau kosong agar tidak menyebabkan crash. 
+ */
+export function dapatkanInisial(nama: string | null | undefined): string {
+  if (!nama || nama.trim() === '') return '?';
+  const kata = nama.trim().split(/\s+/);
+  if (kata.length === 1) {
+    return kata[0].substring(0, 2).toUpperCase();
+  }
+  return (kata[0][0] + kata[1][0]).toUpperCase();
+}

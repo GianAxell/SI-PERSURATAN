@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { waktuPanjang } from '@/lib/format';
+import { dapatkanInisial, waktuPanjang } from '@/lib/format';
 import { STATUS_AKTIF } from '@/lib/status';
 import { useAuth } from './auth-context';
 
@@ -22,12 +22,7 @@ export function ProfilPage() {
 
   if (memuat || !user) return <Kerangka />;
 
-  const inisial = user.nama
-    .split(' ')
-    .slice(0, 2)
-    .map((k) => k[0])
-    .join('')
-    .toUpperCase();
+  const inisial = dapatkanInisial(user.nama);
 
   const status = STATUS_AKTIF[user.status];
 

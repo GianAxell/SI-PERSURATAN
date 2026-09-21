@@ -3,6 +3,7 @@ import { KeyRound, LogOut, User as UserIkon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/features/auth/auth-context';
 import type { User } from '@/types';
+import { dapatkanInisial } from '@/lib/format';
 
 /**
  * Overlay Menu Akun. Di Figma sempat digambar sebagai layar tersendiri
@@ -13,12 +14,7 @@ export function MenuAkun({ user }: { user: User }) {
   const navigate = useNavigate();
   const { keluar } = useAuth();
 
-  const inisial = user.nama
-    .split(' ')
-    .slice(0, 2)
-    .map((k) => k[0])
-    .join('')
-    .toUpperCase();
+  const inisial = dapatkanInisial(user.nama);
 
   const panggilan = `${user.nama.split(' ')[0]} (${user.role === 'admin' ? 'Admin' : 'Pegawai'})`;
 

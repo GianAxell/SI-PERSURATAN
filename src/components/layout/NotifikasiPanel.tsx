@@ -105,14 +105,16 @@ export function NotifikasiPanel({
             )}
           </div>
 
-          <div className="border-t border-line">
-            <Popover.Close
-              onClick={() => navigate(tautanSemua)}
-              className="block w-full px-4 py-3 text-center text-label font-medium text-ink-muted transition-colors hover:bg-surface-muted hover:text-ink"
-            >
-              {labelSemua}
-            </Popover.Close>
-          </div>
+          {tautanSemua && labelSemua ? (
+            <div className="border-t border-line">
+              <Popover.Close
+                onClick={() => navigate(tautanSemua)}
+                className="block w-full px-4 py-3 text-center text-label font-medium text-ink-muted transition-colors hover:bg-surface-muted hover:text-ink"
+              >
+                {labelSemua}
+              </Popover.Close>
+            </div>
+          ) : null}
         </Popover.Content>
       </Popover.Portal>
     </Popover.Root>
