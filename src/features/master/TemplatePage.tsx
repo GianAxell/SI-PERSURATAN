@@ -40,7 +40,7 @@ export function TemplatePage() {
   const terpilihId =
     (idParam && Number(idParam)) ||
     (jenisParam
-      ? (daftar?.find((t) => t.jenis_surat.id === Number(jenisParam))?.id ?? null)
+      ? (daftar?.find((t) => t.jenis_surat?.id === Number(jenisParam))?.id ?? null)
       : null) ||
     daftar?.[0]?.id ||
     null;
@@ -76,9 +76,9 @@ export function TemplatePage() {
                   <span className="truncate text-base text-ink">{t.nama}</span>
                   {t.is_active ? <Badge nada="hijau">Aktif</Badge> : null}
                 </span>
-                <span className="tabular text-note text-ink-subtle">
-                  {t.jenis_surat.kode} · {(t.fields?.length ?? 0)} field
-                </span>
+<span className="tabular text-note text-ink-subtle">
+                    {t.jenis_surat?.kode ?? '—'} · {(t.fields?.length ?? 0)} field
+                  </span>
               </button>
             ))
           )}

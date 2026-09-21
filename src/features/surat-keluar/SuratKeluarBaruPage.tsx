@@ -53,7 +53,12 @@ export function SuratKeluarBaruPage() {
   const buat = useBuatSuratKeluar();
 
   const templateJenis = useMemo(
-    () => (semuaTemplate ?? []).filter((t) => t.jenis_surat.id === jenisId && t.is_active),
+    () =>
+      (semuaTemplate ?? []).filter((t) => {
+        if (!t.is_active) return false;
+        if (!jenisId) return true; // Tampilkan semua aktif jika belum pilih jenis
+        return t.jenis_surat?.id === jenisId;
+      }),
     [semuaTemplate, jenisId],
   );
 
