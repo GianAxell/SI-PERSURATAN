@@ -131,7 +131,6 @@ const FIELD_INVOICE: Omit<TemplateField, 'id'>[] = [
   { field_key: 'isi', label: 'Isi surat', tipe: 'textarea', is_required: false, nilai_bawaan: null, urutan: 6, opsi: null },
 ];
 
-// Fields untuk FIN.02 - Pembayaran
 const FIELD_FIN02: Omit<TemplateField, 'id'>[] = [
   { field_key: 'kepada', label: 'Kepada', tipe: 'text', is_required: true, nilai_bawaan: null, urutan: 1, opsi: null },
   { field_key: 'perihal', label: 'Perihal', tipe: 'text', is_required: true, nilai_bawaan: null, urutan: 2, opsi: null },
@@ -144,7 +143,6 @@ const FIELD_FIN02: Omit<TemplateField, 'id'>[] = [
   { field_key: 'isi', label: 'Isi surat / catatan tambahan', tipe: 'textarea', is_required: false, nilai_bawaan: null, urutan: 9, opsi: null },
 ];
 
-// Fields untuk FIN.04 - Kuitansi
 const FIELD_FIN04: Omit<TemplateField, 'id'>[] = [
   { field_key: 'diterima_dari', label: 'Diterima dari', tipe: 'text', is_required: true, nilai_bawaan: null, urutan: 1, opsi: null },
   { field_key: 'jumlah_uang', label: 'Jumlah uang', tipe: 'number', is_required: true, nilai_bawaan: null, urutan: 2, opsi: null },
@@ -154,7 +152,6 @@ const FIELD_FIN04: Omit<TemplateField, 'id'>[] = [
   { field_key: 'pic', label: 'PIC / Penerima', tipe: 'text', is_required: true, nilai_bawaan: null, urutan: 6, opsi: null },
 ];
 
-// Fields untuk FIN.05 - Permintaan Pembayaran
 const FIELD_FIN05: Omit<TemplateField, 'id'>[] = [
   { field_key: 'kepada', label: 'Kepada', tipe: 'text', is_required: true, nilai_bawaan: null, urutan: 1, opsi: null },
   { field_key: 'perihal', label: 'Perihal', tipe: 'text', is_required: true, nilai_bawaan: null, urutan: 2, opsi: null },
@@ -185,7 +182,6 @@ const KONTEN_CONTOH = `<div class="kop">
   <p>{pic}</p>
 </div>`;
 
-// Konten HTML untuk FIN.02 - Pembayaran
 const KONTEN_FIN02 = `<div class="kop">
   <h1>PT METANOUVA INFORMATIKA</h1>
   <p>Jl. Gn. Batu Dalam Komplek Citra Asri Permai No.C-26, Pasirkaliki, Kec. Cimahi Utara, Kota Cimahi, Jawa Barat 40514</p>
@@ -221,7 +217,6 @@ const KONTEN_FIN02 = `<div class="kop">
   <p>{pic}</p>
 </div>`;
 
-// Konten HTML untuk FIN.04 - Kuitansi
 const KONTEN_FIN04 = `<div class="kop">
   <h1>PT METANOUVA INFORMATIKA</h1>
   <p>Jl. Gn. Batu Dalam Komplek Citra Asri Permai No.C-26, Pasirkaliki, Kec. Cimahi Utara, Kota Cimahi, Jawa Barat 40514</p>
@@ -246,7 +241,6 @@ const KONTEN_FIN04 = `<div class="kop">
   <p>{pic}</p>
 </div>`;
 
-// Konten HTML untuk FIN.05 - Permintaan Pembayaran
 const KONTEN_FIN05 = `<div class="kop">
   <h1>PT METANOUVA INFORMATIKA</h1>
   <p>Jl. Gn. Batu Dalam Komplek Citra Asri Permai No.C-26, Pasirkaliki, Kec. Cimahi Utara, Kota Cimahi, Jawa Barat 40514</p>
@@ -282,7 +276,6 @@ const KONTEN_FIN05 = `<div class="kop">
   <p>{pic}</p>
 </div>`;
 
-// Konten HTML untuk FIN.03 - Invoice (diperbarui dengan alamat lengkap)
 const KONTEN_FIN03 = `<div class="kop">
   <h1>PT METANOUVA INFORMATIKA</h1>
   <p>Jl. Gn. Batu Dalam Komplek Citra Asri Permai No.C-26, Pasirkaliki, Kec. Cimahi Utara, Kota Cimahi, Jawa Barat 40514</p>

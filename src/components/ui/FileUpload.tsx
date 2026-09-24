@@ -3,7 +3,7 @@ import { FileText, Trash2, UploadCloud } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { ukuranBerkas } from '@/lib/format';
 
-export const MAKS_UKURAN = 10 * 1024 * 1024; // NFR-07 / K-13: 10 MB
+export const MAKS_UKURAN = 10 * 1024 * 1024;
 export const TIPE_DITERIMA = 'application/pdf';
 
 /**

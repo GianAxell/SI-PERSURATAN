@@ -42,8 +42,6 @@ export function DisposisiDetailPage() {
   useEffect(() => {
     if (!d || !belumDibaca) return;
     tandaiDibaca.mutate(d.id);
-    // hanya bergantung pada id dan status; mutate stabil dari TanStack Query
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [d?.id, belumDibaca]);
 
   if (isPending) return <Kerangka />;

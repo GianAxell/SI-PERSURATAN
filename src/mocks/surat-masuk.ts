@@ -71,7 +71,7 @@ function tanggalKe(i: number) {
  * merah oleh penanda terlambat — penanda itu jadi tidak berarti apa-apa.
  */
 function statusKe(i: number): StatusDisposisi | null {
-  if (i % 7 === 3) return null; // sebagian surat memang belum didisposisi
+  if (i % 7 === 3) return null;
 
   if (i >= 40) {
     /* Sisakan sedikit yang benar-benar tertinggal, supaya "terlambat" ada
@@ -116,7 +116,7 @@ export interface CatatanSurat extends Omit<SuratMasukDetail, 'disposisi'> {
 }
 
 function buatSurat(i: number): CatatanSurat {
-  const nomorAgendaKe = 134 - i; // surat terbaru bernomor agenda terbesar
+  const nomorAgendaKe = 134 - i;
   const status = statusKe(i);
   const tanggal = tanggalKe(i);
   const pengirim = PENGIRIM[i % PENGIRIM.length];

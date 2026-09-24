@@ -23,7 +23,7 @@ export const filterAwal: FilterSuratMasuk = {
   tanggal_dari: null,
   tanggal_sampai: null,
   page: 1,
-  limit: 10, // O-1 kontrak
+  limit: 10,
 };
 
 /** Membuang nilai kosong agar URL tidak dipenuhi parameter null. */
@@ -40,7 +40,7 @@ export function useSuratMasuk(filter: FilterSuratMasuk) {
       ambilHalaman<SuratMasukRingkas>('/surat-masuk', bersih(filter)) as Promise<
         Halaman<SuratMasukRingkas>
       >,
-    placeholderData: (sebelumnya) => sebelumnya, // tabel tidak berkedip saat pindah halaman
+    placeholderData: (sebelumnya) => sebelumnya,
   });
 }
 

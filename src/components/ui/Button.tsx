@@ -6,7 +6,6 @@ type Ragam = 'utama' | 'kedua' | 'hantu' | 'bahaya';
 type Ukuran = 'toolbar' | 'form' | 'kecil';
 
 const RAGAM: Record<Ragam, string> = {
-  // tombol utama memakai warna sidebar, bukan oranye — oranye hanya penanda posisi
   utama: 'bg-nav text-white hover:bg-nav-active active:bg-nav disabled:bg-ink-subtle',
   kedua:
     'bg-surface text-ink border border-line hover:bg-surface-muted active:bg-surface-muted',

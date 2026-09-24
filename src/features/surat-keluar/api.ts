@@ -17,7 +17,7 @@ export const filterAwalKeluar: FilterSuratKeluar = {
   bagian_id: null,
   jenis_surat_id: null,
   page: 1,
-  limit: 10, // O-1 kontrak
+  limit: 10,
 };
 
 function bersih(f: FilterSuratKeluar) {

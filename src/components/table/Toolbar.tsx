@@ -58,8 +58,7 @@ function PencarianTertunda({
     if (lokal === nilai) return;
     const t = setTimeout(() => onUbah(lokal), 350);
     return () => clearTimeout(t);
-    // onUbah sengaja tidak diikutkan: ia berubah tiap render di pemanggil
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lokal]);-deps
   }, [lokal]);
 
   return (

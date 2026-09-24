@@ -56,7 +56,7 @@ export function SuratKeluarBaruPage() {
     () =>
       (semuaTemplate ?? []).filter((t) => {
         if (!t.is_active) return false;
-        if (!jenisId) return true; // Tampilkan semua aktif jika belum pilih jenis
+        if (!jenisId) return true;
         return t.jenis_surat?.id === jenisId;
       }),
     [semuaTemplate, jenisId],
