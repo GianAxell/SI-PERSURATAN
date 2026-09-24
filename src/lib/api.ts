@@ -15,7 +15,7 @@ export function simpanToken(token: string) {
   try {
     localStorage.setItem(KUNCI_TOKEN, token);
   } catch {
-    /* mode penyamaran / penyimpanan diblokir — biarkan sesi berjalan di memori */
+   
   }
 }
 
