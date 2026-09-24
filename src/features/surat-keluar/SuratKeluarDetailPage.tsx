@@ -280,8 +280,8 @@ function Baris({
       <dd
         className={
           tabular
-            ? 'tabular mt-1 text-base text-ink'
-            : 'mt-1 whitespace-pre-line text-base text-ink'
+            ? 'tabular mt-1 break-words text-base text-ink'
+            : 'mt-1 whitespace-pre-line break-words text-base text-ink'
         }
       >
         {nilai || <span className="text-ink-subtle">—</span>}

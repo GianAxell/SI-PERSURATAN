@@ -10,13 +10,15 @@ export default defineConfig({
     },
   },
   server: {
-    port: 5173,
-    proxy: {
-      // dipakai saat backend sudah jalan; selama mock MSW aktif, proxy ini tidak terpakai
-      '/api': {
-        target: 'http://localhost:3000',
-        changeOrigin: true,
-      },
+  port: 5173,
+  host: '0.0.0.0',
+  allowedHosts: ['performer-instructor-monday-beauty.trycloudflare.com'],
+  proxy: {
+    // dipakai saat backend sudah jalan; selama mock MSW aktif, proxy ini tidak terpakai
+    '/api': {
+      target: 'http://localhost:3000',
+      changeOrigin: true,
     },
   },
+},
 });

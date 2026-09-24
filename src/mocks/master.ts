@@ -37,22 +37,72 @@ const PERIHAL_UMUM = [
   'Surat Peringatan',
 ];
 
-/** FIN dirinci sesuai Figma; bagian lain diisi kode umum sebanyak yang tercatat. */
-export const JENIS_SURAT: JenisSurat[] = (() => {
-  const hasil: JenisSurat[] = [];
-  let id = 1;
-
-  const FIN = [
+const JENIS_SURAT_PER_BAGIAN: Record<string, string[]> = {
+  DIR: [
+    'Keputusan',
+    'Pemberitahuan',
+    'Tugas',
+    'Penawaran',
+    'Perjanjian Kerjasama',
+    'Pernyataan Hutang',
+    'Permohonan',
+  ],
+  HR: [
+    'Perjanjian Kerjasama',
+    'SPD',
+    'Keterangan Kerja',
+    'Peringatan',
+    'Referensi Kerja',
+    'Penunjukan Kerja',
+    'Addendum Freelancer',
+    'Keterangan Penghasilan',
+    'Keputusan Kerja',
+    'Permintaan Pembayaran',
+  ],
+  ADM: [
+    'Undangan Intern',
+    'Memo Libur',
+    'Nota Dinas/Surat Tugas/Surat Jalan',
+    'Pemasangan Iklan',
+    'Keluhan',
+    'Serah Terima Barang',
+    'Permohonan',
+    'Pengakuan Hutang',
+    'Pemberitahuan',
+    'Permintaan Pembayaran',
+  ],
+  FIN: [
     'Pemberitahuan',
     'Pembayaran',
     'Invoice',
     'Kuitansi',
     'Permintaan Pembayaran',
     'Laporan Penerimaan',
-  ];
+  ],
+  MKT: [
+    'Perkenalan',
+    'Penawaran',
+    'Pemberitahuan',
+    'Permintaan Pembayaran',
+    'Laporan Penerimaan',
+  ],
+  ENG: [
+    'Kontrak Kerjasama',
+    'PO',
+    'Surat Jalan',
+    'Serah Terima',
+    'Surat Peringatan',
+    'Pemberitahuan',
+  ],
+};
+
+/** FIN dirinci sesuai Figma; bagian lain diisi kode umum sebanyak yang tercatat. */
+export const JENIS_SURAT: JenisSurat[] = (() => {
+  const hasil: JenisSurat[] = [];
+  let id = 1;
 
   for (const b of BAGIAN) {
-    const nama = b.kode === 'FIN' ? FIN : PERIHAL_UMUM.slice(0, b.jumlah_kode_surat);
+    const nama = JENIS_SURAT_PER_BAGIAN[b.kode] ?? PERIHAL_UMUM.slice(0, b.jumlah_kode_surat);
     nama.forEach((n, i) => {
       hasil.push({
         id: id++,

@@ -516,6 +516,11 @@ function Pratinjau({
 }) {
   const teks = useMemo(() => {
     let hasil = konten.replace('{nomor_surat}', 'Dibuat otomatis saat disimpan');
+    /* Logo kop surat: di PDF akhir diisi backend (renderPDF.js) dari
+       storage/public/logo.png. Pratinjau tidak menyentuh backend itu, jadi
+       placeholder-nya diisi di sini memakai berkas yang sama supaya logo
+       ikut tampil di pratinjau, bukan hanya di PDF unduhan. */
+    hasil = hasil.replaceAll('{logo_perusahaan}', '/logo-surat.png');
     for (const f of fields) {
       const nilai = isian[f.field_key];
       /* Angka dan tanggal ditampilkan seperti nanti tercetak, bukan mentah —
@@ -532,6 +537,12 @@ function Pratinjau({
         nilai ? escapeHtml(tampil) : `<em class="text-ink-subtle">{${f.field_key}}</em>`,
       );
     }
+    /* Placeholder yang tersisa (mis. {dari}) tapi TIDAK terdaftar sebagai
+       field template — bukan sesuatu yang bisa diisi user, jadi jangan
+       ditampilkan mentah sebagai "{dari}". Kosongkan saja, sama seperti
+       perilaku backend (isiTemplate di renderPDF.js) untuk kunci yang
+       tidak dikenal. */
+    hasil = hasil.replace(/\{[a-z_][a-z0-9_]*\}/gi, '');
     return hasil;
   }, [konten, fields, isian]);
 
@@ -544,7 +555,7 @@ function Pratinjau({
         />
         <CardBody>
           <div
-            className="prose-surat rounded-control border border-line bg-surface-muted px-6 py-8 text-base leading-relaxed text-ink"
+            className="prose-surat w-full max-w-full overflow-x-hidden rounded-control border border-line bg-surface-muted px-6 py-8 text-base leading-relaxed text-ink"
             dangerouslySetInnerHTML={{ __html: teks }}
           />
         </CardBody>

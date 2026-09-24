@@ -40,4 +40,23 @@
   .konten {
     @apply mx-auto w-full max-w-konten px-8 py-8;
   }
+
+  /* Pratinjau surat (SuratKeluarBaruPage): konten_html dari template
+     ditampilkan lewat dangerouslySetInnerHTML. Tanpa aturan di bawah,
+     teks isi yang panjang tanpa spasi (satu "kata" panjang, tautan, dst)
+     akan mendorong kontainer melebar ke kanan alih-alih turun ke baris
+     baru — sekarang dipaksa patah mengikuti lebar kartu. Gambar dan tabel
+     (kop surat, info surat, tanda tangan) juga dibatasi supaya tidak
+     pernah melebihi lebar kontainer pratinjau. */
+  .prose-surat {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+  .prose-surat img {
+    max-width: 100%;
+    height: auto;
+  }
+  .prose-surat table {
+    max-width: 100%;
+  }
 }
