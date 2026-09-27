@@ -28,7 +28,7 @@ export function hapusToken() {
 }
 
 export const api: AxiosInstance = axios.create({
-  baseURL: 'https://sao-secretary-karen-permissions.trycloudflare.com/api',
+  baseURL: import.meta.env.VITE_API_BASE_URL,
   headers: { Accept: 'application/json' },
 });
 

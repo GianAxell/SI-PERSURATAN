@@ -58,8 +58,7 @@ function PencarianTertunda({
     if (lokal === nilai) return;
     const t = setTimeout(() => onUbah(lokal), 350);
     return () => clearTimeout(t);
-  }, [lokal]);-deps
-  }, [lokal]);
+   }, [lokal]);
 
   return (
     <Input
